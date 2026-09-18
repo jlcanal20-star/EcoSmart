@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block titulo %}Entrar - Eco Smart{% endblock %}
+
+{% block conteudo %}
+<main>
+  <section class="area-conta">
+    <div class="caixa-form">
+      <h2>Entrar</h2>
+      <p class="texto-form">Acesse sua conta Eco Smart.</p>
+
+      <form method="post" class="formulario">
+        <label for="login">Usuário ou e-mail</label>
+        <input type="text" id="login" name="login" required autofocus>
+
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" name="senha" required>
+
+        <button type="submit">Entrar</button>
+      </form>
+
+      <p class="texto-form">
+        <a href="{{ url_for('recuperar') }}">Esqueci minha senha</a>
+      </p>
+
+      <p class="texto-form">Ainda não tem conta?
+        <a href="{{ url_for('cadastro') }}">Cadastre-se</a>
+      </p>
+    </div>
+  </section>
+</main>
+{% endblock %}

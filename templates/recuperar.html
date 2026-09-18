@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block titulo %}Recuperar senha - Eco Smart{% endblock %}
+
+{% block conteudo %}
+<main>
+  <section class="area-conta">
+    <div class="caixa-form">
+      <h2>Esqueci minha senha</h2>
+      <p class="texto-form">Digite o usuário/e-mail da conta e o código de recuperação que você guardou no cadastro.</p>
+
+      <form method="post" class="formulario">
+        <label for="usuario_ou_email">Usuário ou e-mail</label>
+        <input type="text" id="usuario_ou_email" name="usuario_ou_email" required autofocus>
+
+        <label for="codigo">Código de recuperação</label>
+        <input type="text" id="codigo" name="codigo" placeholder="XXXX-XXXX-XXXX" required>
+
+        <button type="submit">Continuar</button>
+      </form>
+
+      <p class="texto-form">Lembrou a senha?
+        <a href="{{ url_for('login') }}">Entrar</a>
+      </p>
+    </div>
+  </section>
+</main>
+{% endblock %}

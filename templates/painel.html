@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block titulo %}Minha conta - Eco Smart{% endblock %}
+
+{% block conteudo %}
+<main>
+  <section class="area-conta">
+    <div class="caixa-form caixa-larga">
+      <h2>Olá, {{ usuario.usuario }}</h2>
+      <p class="texto-form">Estes são os seus dados guardados no banco.</p>
+
+      <table class="tabela-dados">
+        <tr><th>Código</th>          <td>{{ usuario.id }}</td></tr>
+        <tr><th>Nome de usuário</th> <td>{{ usuario.usuario }}</td></tr>
+        <tr><th>E-mail</th>          <td>{{ usuario.email }}</td></tr>
+        <tr><th>Conta criada em</th> <td>{{ usuario.criado_em }}</td></tr>
+      </table>
+
+      <p class="nota-seguranca">
+        Sua senha não aparece aqui porque ela não é guardada no banco —
+        só um código embaralhado dela, que não pode ser desfeito.
+      </p>
+
+      <a class="botao-sair" href="{{ url_for('sair') }}">Sair da conta</a>
+    </div>
+
+    <div class="caixa-form caixa-larga bloco-espaco">
+      {% if minha_reserva %}
+        <h2>Sua reserva</h2>
+        <p class="texto-form">
+          Você garantiu a sua unidade em {{ minha_reserva.criado_em }}.
+          A gente vai entrar em contato para os próximos passos.
+        </p>
+        <a class="botao-sair" href="{{ url_for('cancelar_reserva') }}">Cancelar reserva</a>
+      {% else %}
+        <h2>Ainda não garantiu a sua</h2>
+        {% if restantes > 0 %}
+          <p class="texto-form">Restam {{ restantes }} unidade(s) na nossa capacidade de fabricação.</p>
+          <a class="btn-comprar" href="{{ url_for('garantir') }}">Garanta a sua</a>
+        {% else %}
+          <p class="texto-form">As unidades esgotaram por enquanto.</p>
+        {% endif %}
+      {% endif %}
+    </div>
+  </section>
+</main>
+{% endblock %}

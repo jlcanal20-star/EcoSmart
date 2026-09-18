@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titulo %}Garantir unidade - Eco Smart{% endblock %}
+
+{% block conteudo %}
+<main>
+  <section class="area-conta">
+    <div class="caixa-form caixa-larga">
+      <h2>Tem certeza que quer garantir a sua unidade?</h2>
+      <p class="texto-form">
+        Restam <strong>{{ restantes }}</strong> unidade(s) na nossa capacidade
+        de fabricação. Ao confirmar, você reserva uma vaga — não é uma cobrança,
+        é uma garantia de que você tem interesse real na Eco Smart.
+      </p>
+
+      <form method="POST" class="formulario formulario-confirmar"
+            onsubmit="window.open('{{ whatsapp_url }}', '_blank')">
+        <button type="submit">Sim, tenho certeza</button>
+        <a class="link-secundario" href="{{ url_for('index') }}#comprar">Cancelar</a>
+      </form>
+    </div>
+  </section>
+</main>
+{% endblock %}

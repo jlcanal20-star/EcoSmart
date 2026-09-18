@@ -1,0 +1,36 @@
+====================================================
+  ECO SMART - COMO LIGAR O SITE
+====================================================
+
+1) EXTRAIA esta pasta antes de qualquer coisa.
+   Botao direito no arquivo .zip -> "Extrair tudo..."
+   Nada funciona enquanto estiver dentro do zip.
+
+2) De dois cliques no arquivo   INICIAR.bat
+
+3) Espere aparecer a mensagem e abra no navegador:
+   http://127.0.0.1:5000
+
+Para desligar: aperte Ctrl + C na janela preta,
+ou simplesmente feche ela.
+
+----------------------------------------------------
+NAO TEM PYTHON INSTALADO?
+----------------------------------------------------
+Baixe em  https://www.python.org/downloads/
+Na PRIMEIRA tela do instalador, marque a caixinha
+"Add Python to PATH". Sem isso o INICIAR.bat nao acha
+o Python.
+
+----------------------------------------------------
+A LOGO DO TOPO
+----------------------------------------------------
+A logo7.png que esta em static/img/ e provisoria,
+feita por mim, porque a sua nao saiu do arquivo .rar.
+E so colar a sua por cima, com o mesmo nome.
+
+----------------------------------------------------
+EXPLICACAO COMPLETA
+----------------------------------------------------
+Esta no arquivo COMO_RODAR.md, na mesma pasta.
+Abra ele no VS Code ou no Bloco de Notas.

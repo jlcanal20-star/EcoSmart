@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/lixeira.png') }}" type="image/x-icon">
+    <title>{% block titulo %}Eco Smart{% endblock %}</title>
+</head>
+<body id="inicio">
+
+    <header>
+        <nav class="navigation">
+            <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='img/logo-ecosmart.png') }}" alt="logo eco smart" class="logo"></a>
+            <ul>
+                <li><a href="{{ url_for('index') }}#inicio">Inicio</a></li>
+                <li><a href="{{ url_for('index') }}#sobre">Sobre o produto</a></li>
+                <li><a href="{{ url_for('index') }}#contato">Contato</a></li>
+                <li><a href="{{ url_for('index') }}#comprar">Comprar</a></li>
+
+                {% if usuario %}
+                    <li>
+                        <a href="{{ url_for('painel') }}">
+                            Minha conta
+                            {% if minha_reserva %}<span class="notificacao" title="Unidade garantida">1</span>{% endif %}
+                        </a>
+                    </li>
+                    <li><a class="btn-menu" href="{{ url_for('sair') }}">Sair</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Entrar</a></li>
+                    <li><a class="btn-menu btn-cadastro" href="{{ url_for('cadastro') }}">Cadastrar</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+        {% if mensagens %}
+            <div class="avisos">
+                {% for categoria, texto in mensagens %}
+                    <p class="aviso aviso--{{ categoria }}">{{ texto }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block conteudo %}{% endblock %}
+
+    <footer class="rodape">
+        <p>Eco Smart &middot; Projeto de TCC &middot; Tecnologia e sustentabilidade</p>
+    </footer>
+
+    <script>
+        const observador = new IntersectionObserver((entradas) => {
+            entradas.forEach((entrada) => {
+                if (entrada.isIntersecting) {
+                    entrada.target.classList.add("visivel");
+                    observador.unobserve(entrada.target);
+                }
+            });
+        }, { threshold: 0.15 });
+
+        document.querySelectorAll(".revelar").forEach((el) => observador.observe(el));
+    </script>
+
+</body>
+</html>

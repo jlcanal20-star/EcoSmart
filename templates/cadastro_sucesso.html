@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block titulo %}Guarde seu código - Eco Smart{% endblock %}
+
+{% block conteudo %}
+<main>
+  <section class="area-conta">
+    <div class="caixa-form caixa-larga">
+      <h2>Conta criada!</h2>
+      <p class="texto-form">
+        Este é o seu <strong>código de recuperação</strong>. Se um dia você esquecer
+        a senha, é ele que vai provar que a conta é sua. Guarde em um lugar seguro —
+        <strong>ele só aparece nesta tela, uma única vez</strong>.
+      </p>
+
+      <p class="codigo-recuperacao">{{ codigo }}</p>
+
+      <p class="nota-seguranca">
+        Ninguém do Eco Smart tem acesso a esse código. Se você perder, não tem como
+        recuperar — só criando uma conta nova.
+      </p>
+
+      <a class="btn-comprar" href="{{ url_for('login') }}">Já guardei, ir para o login</a>
+    </div>
+  </section>
+</main>
+{% endblock %}

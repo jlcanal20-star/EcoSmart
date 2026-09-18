@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titulo %}Redefinir senha - Eco Smart{% endblock %}
+
+{% block conteudo %}
+<main>
+  <section class="area-conta">
+    <div class="caixa-form">
+      <h2>Olá, {{ usuario.usuario }}</h2>
+
+      <p class="texto-form">Identidade confirmada. Defina uma nova senha para a sua conta.</p>
+
+      <form method="post" class="formulario">
+        <label for="nova_senha">Nova senha</label>
+        <input type="password" id="nova_senha" name="nova_senha" minlength="6" required autofocus>
+
+        <label for="confirmar_nova_senha">Confirmar nova senha</label>
+        <input type="password" id="confirmar_nova_senha" name="confirmar_nova_senha" minlength="6" required>
+
+        <button type="submit">Salvar nova senha</button>
+      </form>
+
+      <p class="texto-form">
+        <a href="{{ url_for('login') }}">Cancelar e voltar para o login</a>
+      </p>
+    </div>
+  </section>
+</main>
+{% endblock %}
