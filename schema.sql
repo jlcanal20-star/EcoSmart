@@ -3,12 +3,12 @@ DROP TABLE IF EXISTS reservas;
 DROP TABLE IF EXISTS estoque;
 
 CREATE TABLE usuarios (
-    id                       INTEGER PRIMARY KEY AUTOINCREMENT,
-    usuario                  TEXT NOT NULL UNIQUE,
-    email                    TEXT NOT NULL UNIQUE,
-    senha_hash               TEXT NOT NULL,
-    codigo_recuperacao_hash  TEXT NOT NULL,
-    criado_em                TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+    id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario               TEXT NOT NULL UNIQUE,
+    email                 TEXT NOT NULL UNIQUE,
+    senha_hash            TEXT NOT NULL,
+    palavra_secreta_hash  TEXT NOT NULL,
+    criado_em             TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
 );
 
 CREATE TABLE reservas (
