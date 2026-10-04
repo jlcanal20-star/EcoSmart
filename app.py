@@ -1,5 +1,6 @@
-import secrets
 import sqlite3
+import time
+import unicodedata
 from urllib.parse import quote
 from flask import (Flask, render_template, request, redirect,
                    url_for, session, flash, g)
@@ -47,34 +48,108 @@ def garantir_tabela_reservas():
     conexao.close()
 
 
-def garantir_colunas_usuarios():
+def garantir_tabela_usuarios():
+    # só cria se o banco ainda não tiver a tabela (banco novo, sem init_db.py)
     conexao = sqlite3.connect(BANCO)
-    colunas = [linha[1] for linha in conexao.execute("PRAGMA table_info(usuarios)")]
-
-    if "codigo_recuperacao_hash" not in colunas:
-        conexao.execute("ALTER TABLE usuarios ADD COLUMN codigo_recuperacao_hash TEXT")
-    if "pergunta_seguranca" in colunas:
-        conexao.execute("ALTER TABLE usuarios DROP COLUMN pergunta_seguranca")
-    if "resposta_hash" in colunas:
-        conexao.execute("ALTER TABLE usuarios DROP COLUMN resposta_hash")
-    if "senha_texto" in colunas:
-        conexao.execute("ALTER TABLE usuarios DROP COLUMN senha_texto")
-
+    conexao.execute(
+        """
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario              TEXT NOT NULL UNIQUE,
+            email                TEXT NOT NULL UNIQUE,
+            senha_hash           TEXT NOT NULL,
+            palavra_secreta_hash TEXT NOT NULL,
+            criado_em            TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+        )
+        """
+    )
     conexao.commit()
     conexao.close()
 
 
+def nomes_das_colunas(conexao):
+    return [linha[1] for linha in conexao.execute("PRAGMA table_info(usuarios)")]
+
+
+def garantir_colunas_usuarios():
+    conexao = sqlite3.connect(BANCO)
+    colunas = nomes_das_colunas(conexao)
+
+    try:
+        if "palavra_secreta_hash" not in colunas:
+            if "codigo_recuperacao_hash" in colunas:
+                # banco antigo: a coluna do código de recuperação vira a da palavra
+                # secreta (quem já tem conta continua conseguindo recuperar a senha
+                # com o código que guardou)
+                conexao.execute(
+                    "ALTER TABLE usuarios RENAME COLUMN "
+                    "codigo_recuperacao_hash TO palavra_secreta_hash"
+                )
+            else:
+                conexao.execute("ALTER TABLE usuarios ADD COLUMN palavra_secreta_hash TEXT")
+        if "pergunta_seguranca" in colunas:
+            conexao.execute("ALTER TABLE usuarios DROP COLUMN pergunta_seguranca")
+        if "resposta_hash" in colunas:
+            conexao.execute("ALTER TABLE usuarios DROP COLUMN resposta_hash")
+        if "senha_texto" in colunas:
+            conexao.execute("ALTER TABLE usuarios DROP COLUMN senha_texto")
+        conexao.commit()
+    except sqlite3.OperationalError:
+        # se dois processos do servidor ligarem juntos, o outro pode ter feito a
+        # mudança primeiro; só é erro de verdade se a coluna continuar faltando
+        conexao.rollback()
+        if "palavra_secreta_hash" not in nomes_das_colunas(conexao):
+            raise
+    finally:
+        conexao.close()
+
+
+garantir_tabela_usuarios()
 garantir_tabela_estoque()
 garantir_tabela_reservas()
 garantir_colunas_usuarios()
 
-# sem O/0 e I/1, pra não confundir na hora de digitar o código de volta
-ALFABETO_CODIGO = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+# ---------- palavra secreta (recuperação de senha) ----------
+
+def normalizar_palavra(texto):
+    """Ignora maiúsculas, acentos e espaços extras: 'Girassol ' = 'girassol'."""
+    sem_acento = "".join(
+        letra for letra in unicodedata.normalize("NFKD", texto)
+        if not unicodedata.combining(letra)
+    )
+    return " ".join(sem_acento.lower().split())
 
 
-def gerar_codigo_recuperacao():
-    grupos = ["".join(secrets.choice(ALFABETO_CODIGO) for _ in range(4)) for _ in range(3)]
-    return "-".join(grupos)
+def palavra_confere(hash_guardado, digitada):
+    if not hash_guardado:
+        return False
+    if check_password_hash(hash_guardado, normalizar_palavra(digitada)):
+        return True
+    # contas antigas: o código de recuperação era guardado em letras maiúsculas
+    return check_password_hash(hash_guardado, digitada.strip().upper())
+
+
+# limite de tentativas erradas na recuperação (fica na memória do servidor)
+MAX_TENTATIVAS = 5
+BLOQUEIO_SEGUNDOS = 10 * 60
+falhas_recuperacao = {}
+
+
+def recuperacao_bloqueada(chave):
+    registro = falhas_recuperacao.get(chave)
+    if registro is None:
+        return False
+    quantidade, momento = registro
+    if time.time() - momento > BLOQUEIO_SEGUNDOS:
+        falhas_recuperacao.pop(chave, None)
+        return False
+    return quantidade >= MAX_TENTATIVAS
+
+
+def registrar_falha_recuperacao(chave):
+    quantidade, _ = falhas_recuperacao.get(chave, (0, 0))
+    falhas_recuperacao[chave] = (quantidade + 1, time.time())
 
 
 def get_db():
@@ -136,10 +211,12 @@ def cadastro():
         email = request.form["email"].strip().lower()
         senha = request.form["senha"]
         confirmar = request.form["confirmar"]
+        palavra = normalizar_palavra(request.form.get("palavra_secreta", ""))
+        confirmar_palavra = normalizar_palavra(request.form.get("confirmar_palavra", ""))
 
         db = get_db()
 
-        if not nome_usuario or not email or not senha:
+        if not nome_usuario or not email or not senha or not palavra:
             flash("Preencha todos os campos.", "erro")
 
         elif len(nome_usuario) < 3:
@@ -151,6 +228,15 @@ def cadastro():
         elif senha != confirmar:
             flash("As duas senhas digitadas são diferentes.", "erro")
 
+        elif len(palavra) < 4:
+            flash("A palavra secreta precisa ter pelo menos 4 caracteres.", "erro")
+
+        elif palavra != confirmar_palavra:
+            flash("As duas palavras secretas digitadas são diferentes.", "erro")
+
+        elif palavra == normalizar_palavra(senha):
+            flash("A palavra secreta não pode ser igual à senha.", "erro")
+
         elif db.execute("SELECT id FROM usuarios WHERE usuario = ?",
                         (nome_usuario,)).fetchone():
             flash("Esse nome de usuário já está em uso.", "erro")
@@ -160,20 +246,19 @@ def cadastro():
             flash("Esse e-mail já está cadastrado.", "erro")
 
         else:
-            codigo_recuperacao = gerar_codigo_recuperacao()
             db.execute(
                 """INSERT INTO usuarios
-                   (usuario, email, senha_hash, codigo_recuperacao_hash)
+                   (usuario, email, senha_hash, palavra_secreta_hash)
                    VALUES (?, ?, ?, ?)""",
                 (
                     nome_usuario,
                     email,
                     generate_password_hash(senha),
-                    generate_password_hash(codigo_recuperacao),
+                    generate_password_hash(palavra),
                 ),
             )
             db.commit()
-            return render_template("cadastro_sucesso.html", codigo=codigo_recuperacao)
+            return render_template("cadastro_sucesso.html")
 
     return render_template("cadastro.html")
 
@@ -202,24 +287,30 @@ def login():
 def recuperar():
     if request.method == "POST":
         alvo = request.form["usuario_ou_email"].strip()
-        codigo = request.form["codigo"].strip().upper()
+        palavra = request.form.get("palavra_secreta", "")
+        chave = alvo.lower()
+
+        if recuperacao_bloqueada(chave):
+            flash("Muitas tentativas erradas. Aguarde 10 minutos e tente de novo.", "erro")
+            return render_template("recuperar.html")
 
         usuario = get_db().execute(
             "SELECT * FROM usuarios WHERE usuario = ? OR email = ?",
             (alvo, alvo.lower()),
         ).fetchone()
 
-        codigo_valido = (
+        palavra_valida = (
             usuario is not None
-            and usuario["codigo_recuperacao_hash"] is not None
-            and check_password_hash(usuario["codigo_recuperacao_hash"], codigo)
+            and palavra_confere(usuario["palavra_secreta_hash"], palavra)
         )
 
-        if codigo_valido:
+        if palavra_valida:
+            falhas_recuperacao.pop(chave, None)
             session["recuperar_id"] = usuario["id"]
             return redirect(url_for("redefinir"))
 
-        flash("Usuário/e-mail ou código de recuperação incorretos.", "erro")
+        registrar_falha_recuperacao(chave)
+        flash("Usuário/e-mail ou palavra secreta incorretos.", "erro")
 
     return render_template("recuperar.html")
 
