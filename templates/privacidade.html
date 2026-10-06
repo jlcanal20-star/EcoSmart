@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block titulo %}Política de Privacidade - Eco Smart{% endblock %}
+
+{% block conteudo %}
+<main>
+  <section class="area-conta">
+    <div class="caixa-form caixa-larga" style="max-width: 680px;">
+      <h2>Política de Privacidade</h2>
+      <p class="texto-form">
+        Esta página explica, de forma simples, como o Eco Smart trata os seus dados pessoais,
+        conforme a Lei Geral de Proteção de Dados (LGPD, Lei nº 13.709/2018).
+        O Eco Smart é um projeto acadêmico (TCC) e esta política vale para este site.
+      </p>
+
+      <h3 style="color: var(--destaque-2); margin: 18px 0 6px;">1. Quais dados coletamos</h3>
+      <style>.lista-privacidade li { list-style: disc; margin-bottom: 4px; }</style>
+      <ul class="texto-form lista-privacidade" style="padding-left: 20px; margin-bottom: 8px;">
+        <li><strong>Nome de usuário e e-mail</strong>, informados no cadastro.</li>
+        <li><strong>Senha e palavra secreta</strong>, guardadas apenas em forma de <em>hash</em>
+            (um código embaralhado). Nem a equipe consegue ler o texto original.</li>
+        <li><strong>Data de criação da conta</strong> e, se você garantir uma unidade,
+            <strong>a sua reserva</strong>.</li>
+      </ul>
+      <p class="texto-form">Não coletamos CPF, endereço, telefone nem dados de pagamento.</p>
+
+      <h3 style="color: var(--destaque-2); margin: 18px 0 6px;">2. Para que usamos</h3>
+      <p class="texto-form">
+        Apenas para o funcionamento do site: criar e acessar a sua conta, recuperar a senha
+        e registrar a sua reserva de uma unidade.
+      </p>
+
+      <h3 style="color: var(--destaque-2); margin: 18px 0 6px;">3. Base legal</h3>
+      <p class="texto-form">
+        O tratamento é feito com o seu <strong>consentimento</strong>, dado ao marcar
+        "Li e aceito" no cadastro.
+      </p>
+
+      <h3 style="color: var(--destaque-2); margin: 18px 0 6px;">4. Compartilhamento</h3>
+      <p class="texto-form">
+        Não vendemos nem compartilhamos os seus dados com terceiros. Ao confirmar uma reserva,
+        o site abre o WhatsApp com uma mensagem pronta que inclui o seu <strong>nome de usuário</strong>;
+        o envio só acontece se você apertar enviar.
+      </p>
+
+      <h3 style="color: var(--destaque-2); margin: 18px 0 6px;">5. Cookies</h3>
+      <p class="texto-form">
+        Usamos apenas um cookie de sessão, necessário para manter você conectado.
+        Não usamos cookies de publicidade ou de rastreamento.
+      </p>
+
+      <h3 style="color: var(--destaque-2); margin: 18px 0 6px;">6. Segurança</h3>
+      <p class="texto-form">
+        As senhas são protegidas por hash, as consultas ao banco de dados são feitas de forma
+        segura e as áreas da conta só abrem para quem está conectado.
+      </p>
+
+      <h3 style="color: var(--destaque-2); margin: 18px 0 6px;">7. Por quanto tempo guardamos</h3>
+      <p class="texto-form">
+        Enquanto a sua conta existir. Como este é um projeto acadêmico, os dados também podem
+        ser apagados ao fim do projeto.
+      </p>
+
+      <h3 style="color: var(--destaque-2); margin: 18px 0 6px;">8. Seus direitos</h3>
+      <p class="texto-form">
+        Pela LGPD, você pode pedir a confirmação de que tratamos seus dados, o acesso a eles,
+        a correção de dados incorretos e a <strong>exclusão</strong> da sua conta e dos seus dados,
+        além de retirar o seu consentimento quando quiser.
+      </p>
+
+      <h3 style="color: var(--destaque-2); margin: 18px 0 6px;">9. Como falar com a gente</h3>
+      <p class="texto-form">
+        Para exercer esses direitos, use os contatos da seção
+        <a href="{{ url_for('index') }}#contato">Contato</a> do site.
+        O responsável pelos dados é a equipe do projeto Eco Smart.
+      </p>
+
+      <p class="nota-seguranca">
+        Esta política pode ser atualizada. Última atualização: outubro de 2026.
+      </p>
+
+      <p class="texto-form">
+        <a href="{{ url_for('cadastro') }}">Voltar ao cadastro</a> &middot;
+        <a href="{{ url_for('index') }}">Página inicial</a>
+      </p>
+    </div>
+  </section>
+</main>
+{% endblock %}
