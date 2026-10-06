@@ -204,6 +204,11 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/privacidade")
+def privacidade():
+    return render_template("privacidade.html")
+
+
 @app.route("/cadastro", methods=["GET", "POST"])
 def cadastro():
     if request.method == "POST":
@@ -213,11 +218,15 @@ def cadastro():
         confirmar = request.form["confirmar"]
         palavra = normalizar_palavra(request.form.get("palavra_secreta", ""))
         confirmar_palavra = normalizar_palavra(request.form.get("confirmar_palavra", ""))
+        aceitou_privacidade = request.form.get("aceite_privacidade") == "on"
 
         db = get_db()
 
         if not nome_usuario or not email or not senha or not palavra:
             flash("Preencha todos os campos.", "erro")
+
+        elif not aceitou_privacidade:
+            flash("Para criar a conta, é preciso aceitar a Política de Privacidade.", "erro")
 
         elif len(nome_usuario) < 3:
             flash("O nome de usuário precisa ter pelo menos 3 caracteres.", "erro")
