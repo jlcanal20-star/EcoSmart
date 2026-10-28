@@ -272,7 +272,7 @@ main section {
     flex-direction: column;
     gap: 6px;
     padding: 6px 24px;
-    width: 200px;
+    width: 240px;
     border-left: 1px solid var(--borda);
 }
 
